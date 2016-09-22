@@ -326,7 +326,9 @@
         NSMutableArray *characteristics = @[].mutableCopy;
         
         for (CBCharacteristic *characteristic in service.characteristics) {
-            [characteristics addObject:[[YMSCBCharacteristic alloc] initWithName:@"" parent:self uuid:characteristic.UUID offset:0]];
+            YMSCBCharacteristic *newCharacteristic = [[YMSCBCharacteristic alloc] initWithName:@"" parent:self uuid:characteristic.UUID offset:0];
+            newCharacteristic.cbCharacteristic = characteristic;
+            [characteristics addObject:newCharacteristic];
         }
         
         [btService handleDiscoveredCharacteristicsResponse:characteristics withError:error];

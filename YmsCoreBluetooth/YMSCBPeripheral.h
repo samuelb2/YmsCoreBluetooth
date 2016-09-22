@@ -140,8 +140,8 @@ typedef void (^YMSCBPeripheralDiscoverServicesBlockType)(NSArray *, NSError *);
  */
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral
                            central:(YMSCBCentralManager *)owner
-                            baseHi:(int64_t)hi
-                            baseLo:(int64_t)lo;
+                            baseHi:(uint64_t)hi
+                            baseLo:(uint64_t)lo;
 
 
 /** @name Get all CBService CBUUIDs for this peripheral  */

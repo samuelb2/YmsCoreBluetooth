@@ -28,7 +28,7 @@
 /**
  Callback type for discovered characteristics.
  */
-typedef void (^YMSCBDiscoverCharacteristicsCallbackBlockType)(NSDictionary *, NSError *);
+typedef void (^YMSCBDiscoverCharacteristicsCallbackBlockType)(NSArray *, NSError *);
 
 typedef NS_ENUM(NSInteger, YMSCBCallbackTransactionType) {
     YMSCBWriteCallbackType,
@@ -95,9 +95,7 @@ typedef NS_ENUM(NSInteger, YMSCBCallbackTransactionType) {
  */
 - (instancetype)initWithName:(NSString *)oName
                       parent:(YMSCBPeripheral *)pObj
-                      baseHi:(int64_t)hi
-                      baseLo:(int64_t)lo
-               serviceOffset:(int)serviceOffset;
+                      cbUUID:(CBUUID *)cbUUID;
 
 
 /**
@@ -112,8 +110,8 @@ typedef NS_ENUM(NSInteger, YMSCBCallbackTransactionType) {
  */
 - (instancetype)initWithName:(NSString *)oName
                       parent:(YMSCBPeripheral *)pObj
-                      baseHi:(int64_t)hi
-                      baseLo:(int64_t)lo
+                      baseHi:(uint64_t)hi
+                      baseLo:(uint64_t)lo
             serviceBLEOffset:(int)serviceOffset;
 
 /** @name Adding a BLE characteristic */
@@ -196,14 +194,14 @@ typedef NS_ENUM(NSInteger, YMSCBCallbackTransactionType) {
  
  */
 - (void)discoverCharacteristics:(NSArray *)characteristicUUIDs
-                      withBlock:(void (^)(NSDictionary *chDict, NSError *))callback;
+                      withBlock:(void (^)(NSArray *chDict, NSError *))callback;
 /**
  Handler method for discovered characteristics.
  
  @param chDict Dictionary of YMSCBCharacteristics that have been discovered.
  @param error Error object, if failure.
  */
-- (void)handleDiscoveredCharacteristicsResponse:(NSDictionary *)chDict withError:(NSError *)error;
+- (void)handleDiscoveredCharacteristicsResponse:(NSArray *)chDict withError:(NSError *)error;
 
 /**
  Add dictionary style subscripting to YMSCBService instance to access objects in characteristicDict with key.

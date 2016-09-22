@@ -29,8 +29,8 @@
 
 - (instancetype)initWithPeripheral:(CBPeripheral *)peripheral
                            central:(YMSCBCentralManager *)owner
-                            baseHi:(int64_t)hi
-                            baseLo:(int64_t)lo {
+                            baseHi:(uint64_t)hi
+                            baseLo:(uint64_t)lo {
     
     self = [super init];
     
@@ -38,6 +38,8 @@
         _central = owner;
         _base.hi = hi;
         _base.lo = lo;
+        
+        _serviceDict = [NSDictionary new];
         
         _cbPeripheral = peripheral;
         peripheral.delegate = self;
@@ -148,13 +150,12 @@
             for (YMSCBService *service in yservices) {
                 __weak YMSCBService *thisService = (YMSCBService *)service;
                 
-                [service discoverCharacteristics:[service characteristics] withBlock:^(NSDictionary *chDict, NSError *error) {
+                [service discoverCharacteristics:[service characteristics] withBlock:^(NSArray *chDict, NSError *error) {
                     if (error) {
                         return;
                     }
 
-                    for (NSString *key in chDict) {
-                        YMSCBCharacteristic *ct = chDict[key];
+                    for (YMSCBCharacteristic *ct in chDict) {
                         //NSLog(@"%@ %@ %@", ct, ct.cbCharacteristic, ct.uuid);
                         
                         [ct discoverDescriptorsWithBlock:^(NSArray *ydescriptors, NSError *error) {
@@ -266,7 +267,7 @@
  */
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
     __weak YMSCBPeripheral *this = self;
-    _YMS_PERFORM_ON_MAIN_THREAD(^{
+    dispatch_async(dispatch_get_main_queue(), ^{
         
         if (this.discoverServicesCallback) {
             NSMutableArray *services = [NSMutableArray new];
@@ -319,11 +320,16 @@
  */
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
     __weak YMSCBPeripheral *this = self;
-    _YMS_PERFORM_ON_MAIN_THREAD(^{
+    dispatch_async(dispatch_get_main_queue(), ^{
         YMSCBService *btService = [this findService:service];
         
-        [btService syncCharacteristics:service.characteristics];
-        [btService handleDiscoveredCharacteristicsResponse:btService.characteristicDict withError:error];
+        NSMutableArray *characteristics = @[].mutableCopy;
+        
+        for (CBCharacteristic *characteristic in service.characteristics) {
+            [characteristics addObject:[[YMSCBCharacteristic alloc] initWithName:@"" parent:self uuid:characteristic.UUID offset:0]];
+        }
+        
+        [btService handleDiscoveredCharacteristicsResponse:characteristics withError:error];
         
         if ([this.delegate respondsToSelector:@selector(peripheral:didDiscoverCharacteristicsForService:error:)]) {
             [this.delegate peripheral:peripheral didDiscoverCharacteristicsForService:service error:error];

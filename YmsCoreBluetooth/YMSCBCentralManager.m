@@ -292,6 +292,7 @@ NSString *const YMSCBVersion = @"" kYMSCBVersion;
  didDiscoverPeripheral:(CBPeripheral *)peripheral
      advertisementData:(NSDictionary *)advertisementData
                   RSSI:(NSNumber *)RSSI {
+    NSLog(@"Did discover");
     __weak YMSCBCentralManager *this = self;
     _YMS_PERFORM_ON_MAIN_THREAD(^{
         if (this.useStoredPeripherals) {

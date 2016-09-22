@@ -29,25 +29,15 @@
 
 - (instancetype)initWithName:(NSString *)oName
                       parent:(YMSCBPeripheral *)pObj
-                      baseHi:(int64_t)hi
-                      baseLo:(int64_t)lo
-               serviceOffset:(int)serviceOffset {
+                      cbUUID:(CBUUID *)cbUUID {
 
     self = [super init];
     if (self) {
         _name = oName;
         _parent = pObj;
-        _base.hi = hi;
-        _base.lo = lo;
         _characteristicDict = [[NSMutableDictionary alloc] init];
         
-        if ((hi == 0) && (lo == 0)) {
-            NSString *addrString = [NSString stringWithFormat:@"%x", serviceOffset];
-            _uuid = [CBUUID UUIDWithString:addrString];
-
-        } else {
-            _uuid = [YMSCBUtils createCBUUID:&_base withIntOffset:serviceOffset];
-        }
+        _uuid = cbUUID;
     }
     return self;
 }
@@ -55,8 +45,8 @@
 
 - (instancetype)initWithName:(NSString *)oName
                       parent:(YMSCBPeripheral *)pObj
-                      baseHi:(int64_t)hi
-                      baseLo:(int64_t)lo
+                      baseHi:(uint64_t)hi
+                      baseLo:(uint64_t)lo
             serviceBLEOffset:(int)serviceOffset {
 
     
@@ -206,7 +196,7 @@
 }
 
 
-- (void)discoverCharacteristics:(NSArray *)characteristicUUIDs withBlock:(void (^)(NSDictionary *, NSError *))callback {
+- (void)discoverCharacteristics:(NSArray *)characteristicUUIDs withBlock:(void (^)(NSArray *, NSError *))callback {
     self.discoverCharacteristicsCallback = callback;
     
     [self.parent.cbPeripheral discoverCharacteristics:characteristicUUIDs
@@ -214,7 +204,7 @@
 
 }
 
-- (void)handleDiscoveredCharacteristicsResponse:(NSDictionary *)chDict withError:(NSError *)error {
+- (void)handleDiscoveredCharacteristicsResponse:(NSArray *)chDict withError:(NSError *)error {
     YMSCBDiscoverCharacteristicsCallbackBlockType callback = [self.discoverCharacteristicsCallback copy];
     
     if (callback) {
